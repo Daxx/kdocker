@@ -24,8 +24,15 @@ const QString Constants::APP_NAME    = "KDocker";
 const QString Constants::ORG_NAME    = "com.kdocker";
 const QString Constants::DOM_NAME    = "kdocker.com";
 const QString Constants::WEBSITE     = "http://kdocker.com";
-const QString Constants::APP_VERSION = "5.0";
+const QString Constants::APP_VERSION = "5.1.1";   // FIXME: KDVER
 
-const char *Constants::OPTIONSTRING = "+abd:e:fhi:jklmn:op:qrstvuw:x:";
+#ifdef DBUS_TESTING
+    const QString Constants::DBUS_SERVICE_NAME = "com.kdockertest";
+#else
+    const QString Constants::DBUS_SERVICE_NAME = "com.kdocker";
+#endif
+
+//const char *Constants::OPTIONSTRING = "+abd:e:fhi:jklmn:op:qrstvuw:x:";
+const char *Constants::OPTIONSTRING = "+abd:De:fhi:jklmn:op:qrstvuw:x:Z";  // FIXME: TEMP? - DfB
 
 const QString Constants::ABOUT_MESSAGE = QString("%1 %2\n\n%3").arg(Constants::APP_NAME).arg(Constants::APP_VERSION).arg(Constants::WEBSITE);

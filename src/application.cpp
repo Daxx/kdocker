@@ -19,18 +19,24 @@
 
 #include "application.h"
 
+extern QFile outFile;             // FIXME: TEMP? - DfB
+extern QTextStream debugStream;   // FIXME: TEMP  - DfB
 
-Application::Application(const QString &appId, int &argc, char **argv) : QtSingleApplication(appId, argc, argv) {
-    m_kdocker = 0;
+Application::Application(int &argc, char **argv) : QApplication(argc, argv) {
+    m_manager = 0;
+
+    debugStream << "\n\n" << argv[0] << "\nDaemon starting @ " << QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") << endl;   // FIXME: TEMP - DfB
 }
 
-void Application::setKDockerInstance(KDocker *kdocker) {
-    m_kdocker = kdocker;
+void Application::setTrayItemManagerInstance(TrayItemManager *manager) {
+    m_manager = manager;
 }
 
 void Application::close() {
-    if (m_kdocker) {
-        m_kdocker->undockAll();
+    if (m_manager) {
+        m_manager->undockAll();
     }
+    debugStream << "\nDaemon stopping" << endl;   // FIXME: TEMP  - DfB
+    outFile.close();                              // FIXME: TEMP? - DfB
     quit();
 }

@@ -18,17 +18,13 @@
  * USA.
  */
 
-#include <QCoreApplication>
 #include <QLocale>
-#include <QObject>
 #include <QTranslator>
 
 #include <signal.h>
 
 #include "application.h"
 #include "constants.h"
-#include "kdocker.h"
-
 
 static void sighandler(int sig) {
     Q_UNUSED(sig);
@@ -36,8 +32,49 @@ static void sighandler(int sig) {
     dynamic_cast<Application*> (qApp)->close();
 }
 
+QFile outFile;             // FIXME: TEMP? - DfB
+QTextStream debugStream;   // FIXME: TEMP? - DfB
+
+void debugMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString dt  = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+    QString txt = QString("[%1] (%2:%3) ").arg(dt).arg(QFileInfo(context.file).fileName(), 20).arg(context.line, 3);
+
+    switch (type)
+    {
+        case QtDebugMsg:
+            txt += QString("{Debug   }\t %1").arg(msg);
+            break;
+        case QtWarningMsg:
+            txt += QString("{Warning }\t %1").arg(msg);
+            break;
+        case QtCriticalMsg:
+            txt += QString("{Critical}\t %1").arg(msg);
+            break;
+        case QtFatalMsg:
+            txt += QString("{*FATAL* }\t %1").arg(msg);
+            abort();
+            break;
+    }
+   debugStream << txt << endl;
+}
+
+
 int main(int argc, char *argv[]) {
-    Application app(Constants::APP_NAME, argc, argv);
+    if ( QDir::setCurrent(QDir::homePath()) )   // FIXME: TEMP logging - DfB
+    {
+#ifdef DBUS_TESTING
+        outFile.setFileName("kdocker-daemon-test.log");
+#else
+        outFile.setFileName("kdocker-daemon.log");
+#endif
+        outFile.open(QIODevice::WriteOnly /* | QIODevice::Append */ );
+        debugStream.setDevice(&outFile);
+
+        qInstallMessageHandler(debugMessageHandler);
+    }
+
+    Application app(argc, argv);
 
     // setup signal handlers that undock and quit
     signal(SIGHUP, sighandler);
@@ -60,27 +97,12 @@ int main(int argc, char *argv[]) {
     app.setOrganizationDomain(Constants::DOM_NAME);
     app.setApplicationName(Constants::APP_NAME);
     app.setApplicationVersion(Constants::APP_VERSION);
-    // Quitting will be handled by the TrayItemManager in the KDocker instance.
-    // It will determine when there is nothing left running.
+    // Quitting will be handled by the TrayItemManager -
+    //  it will determine when there is nothing left running.
     app.setQuitOnLastWindowClosed(false);
 
-    KDocker kdocker;
-    // This can exit the application. We want the output of any help text output
-    // on the tty the instance has started from so we call this here.
-    kdocker.preProcessCommand(argc, argv);
-
-    // Send the arguments in a message to another instance if there is one.
-    if (app.sendMessage(QCoreApplication::arguments().join("\n"))) {
-        return 0;
-    }
-
-    // Handle messages from another instance so this can be a single instance app.
-    QObject::connect(&app, SIGNAL(messageReceived(const QString&)), &kdocker, SLOT(handleMessage(const QString&)));
-
-    // Wait for the Qt event loop to be started before running.
-    QMetaObject::invokeMethod(&kdocker, "run", Qt::QueuedConnection);
-
-    app.setKDockerInstance(&kdocker);
+    TrayItemManager manager;
+    app.setTrayItemManagerInstance(&manager);
 
     return app.exec();
 }

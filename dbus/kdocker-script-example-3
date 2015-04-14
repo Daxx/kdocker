@@ -1,0 +1,5 @@
+#!/bin/sh
+
+IFS='
+'
+dbus-send --dest=com.kdocker --print-reply=literal --type=method_call  /KDocker  com.kdocker.exec  string:"$*"

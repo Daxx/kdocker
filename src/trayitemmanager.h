@@ -24,9 +24,16 @@
 #include <QtCore/QAbstractNativeEventFilter>
 #include <QList>
 #include <QObject>
+#include <QPair>
 #include <QStringList>
 
 #include <sys/types.h>
+
+#ifdef DBUS_TESTING
+#  include "kdockertest_adaptor.h"
+#else
+#  include "kdocker_adaptor.h"
+#endif
 
 #include "trayitem.h"
 #include "scanner.h"
@@ -44,9 +51,10 @@ public:
     TrayItemManager();
     ~TrayItemManager();
     virtual bool nativeEventFilter(const QByteArray &eventType, void *message, long *result)  Q_DECL_OVERRIDE;
-    void processCommand(const QStringList &args);
 
 public slots:
+    Q_SCRIPTABLE QString exec(const QString &args);
+    void processCommand(int argc, char *argv[], QTextStream &reply);
     void dockWindow(Window window, const TrayItemArgs settings);
     Window userSelectWindow(bool checkNormality = true);
     void remove(TrayItem *trayItem);
@@ -62,9 +70,18 @@ signals:
     void quitMouseGrab();
 
 private:
+    QString formatHelpArgs(QList<QPair<QString, QString> > commands);
+    void printHelp(QTextStream &out);
+    void printDocked(QTextStream &out);
     QList<Window> dockedWindows();
     bool isWindowDocked(Window window);
 
+    QDBusConnection m_connection;
+#ifdef DBUS_TESTING
+    KdockertestAdaptor *m_adaptor;
+#else
+    KdockerAdaptor *m_adaptor;
+#endif
     Scanner *m_scanner;
     TrayItemArgs m_initArgs;  // 'const' initializer (unset values)
     QList<TrayItem*> m_trayItems;

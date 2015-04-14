@@ -1,12 +1,12 @@
 Prerequisites
 1. Make sure you have Qt 5 installed and working. If you dont know what Qt is,
-go to http://qt.nokia.com/products/. You will need qmake to compile.
+go to http://www.qt.io/qt-framework/. You will need qmake to compile.
 
 Building
-1. edit kdocker.pro if necessary. It should be ready to go with no change.
-2. qmake
+1. edit qmake/kdocker-*.pro if necessary. They should be ready to go with no change.
+2. qmake -r
 3. make 
-4. run "make install" (optional)
+4. run "make install" (optional, but see "DBUS NOTE" below)
 5. While making shortcuts, use the icons in /usr/share/kdocker/icons.
 
 Please see README for tips and general information
@@ -14,3 +14,26 @@ Please see README for tips and general information
 IMPORTANT: Kill all previous instances of KDocker that are running before trying
 out this version
 
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+DBUS NOTE:
+Both the kdocker and the kdocker-daemon executables are built in the "make" step
+during building but a "kdocker-daemon.service" file must be available to auto-activate
+the daemon (on-demand); this system file is not created until "make install".
+Without auto-activation, the kdocker executable is likely to fail with a
+dbus-request timeout.
+
+To test a new build, one option is to start the kdocker-daemon before running kdocker:
+    cd into build_directory
+    ./kdocker-daemon
+    ./kdocker [options] [command]
+In this case, the daemon will run in the background until it is terminated.
+
+A second option (not recommended) is to create a local service file as:
+  ~/.local/share/dbus-1/services/kdocker-daemon.service
+but this overrides the system install directory which is commonly:
+  /usr/share/dbus-1/services
+and will remain in effect until it is removed.
+    4. make local-service
+    (To remove before/soon after full install)  make local-service-clean
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

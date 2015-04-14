@@ -38,14 +38,12 @@
 #undef Bool
 
 typedef struct GrabInfo {
-
     QTimer     *qtimer;
     QEventLoop *qloop;
 
     Window       window;
     unsigned int button;
     bool         isGrabbing;
-
 } GrabInfo;
 
 

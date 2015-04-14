@@ -1,0 +1,3 @@
+#!/bin/bash
+
+IFS=$'\n'; qdbus com.kdocker /KDocker exec "$*"

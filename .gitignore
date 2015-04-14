@@ -1,8 +1,14 @@
-build/
 nbproject/
-kdocker
-kdocker.pro.user*
+build/
+## qmake/*
+## !qmake/*.pro
 Makefile
+qmake/Makefile*
+qmake/*_adaptor.*
+kdocker*.pro.user*
+kdocker
+kdocker-daemon
+kdocker-daemon-test
 
 # Keep empty directories:
 !*/.git*

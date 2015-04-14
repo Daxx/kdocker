@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.kdocker
+Exec=!DAEMON_PATH!

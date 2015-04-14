@@ -1,0 +1,8 @@
+#!/bin/bash
+
+IFS=$'\n'; dbus-send --dest=com.kdocker --print-reply=literal --type=method_call  /KDocker  com.kdocker.exec  string:"$*"
+
+# Script arguments are joined into a single string by
+#  newline characters and passed to the kdocker daemon.
+#
+# kdocker-script-example-2  -d10  calculator

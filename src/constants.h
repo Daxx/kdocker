@@ -35,6 +35,8 @@ public:
 
     static const QString APP_VERSION;
 
+    static const QString DBUS_SERVICE_NAME;
+
     static const char *OPTIONSTRING;
 
     static const QString ABOUT_MESSAGE;
